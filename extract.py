@@ -51,14 +51,12 @@ def checkCommandType(lines):
         try:
             if lines[index].index('INFO     search arguments')>-1:
                 search_arguments_line_index = index
-                index = 0
                 break
         except:
             pass
         index = index+1
-    print(len(lines))
-    print(index)
-    argments = eval(lines[70].replace("\n",'').split(":")[1])
+        
+    argments = eval(lines[search_arguments_line_index].replace("\n",'').split(":")[1])
     index_lazy_greedy = -1
     index_ucrn2_1 = -1
     index_uccp = -1
@@ -89,7 +87,6 @@ def getFileLines(log_path,log_file):
     try:
         with open(os.path.join(log_path,log_file), 'r') as f: 
             lines = f.readlines()
-        f.close()
         try:
             if lines[0].index('INFO     Running translator.')>-1:
                 pass 
@@ -98,7 +95,6 @@ def getFileLines(log_path,log_file):
             
         return lines
     except Exception,err:
-        f.close()
         logging.error("Error at readFile %s"%log_file)
         logging.error(err)
         print(err)
@@ -112,7 +108,6 @@ def checkSolutionFound(lines):
             solutioned = True
         return solutioned
     except Exception,err:
-        f.close()
         logging.error("Error at checkSolutionFound %s"%log_file)
         logging.error(err)
         print(err)
@@ -122,21 +117,22 @@ def extract(lines,command_type):
         result_dic = {}
         indexs = range(-15,0)
         for index in indexs:
-            result = lines[index].replace("\n",'').replace('.','').split(":")
+            result = lines[index].replace("\n",'').split(":")
+            
             if len(result)>1:
                 result_dic[result[0]]=result[1]
             else:
                 result_dic[result[0]]=result[0]
-        dead_ends =  result_dic['Dead ends']
+        dead_ends =  result_dic['Dead ends'].replace("state(s).","")
         number_of_registered_states = result_dic['Number of registered states']
-        total_time = result_dic['Total time']
-        solution_found = result_dic['Solution found']
+        total_time = result_dic['Total time'].replace("s",'')
+        solution_found = 1 
         plan_cost = result_dic['Plan cost']
         domain = eval(lines[1].split(":")[1])[1].split("/")[-2]
         problem = eval(lines[1].split(":")[1])[1].split("/")[-1].replace(".pddl","")
         log_file.replace('.log','').split("@")[1]
-        u_recognized = ''#result_dic['u_recognized']
-        extract_info = ExtractInfo(domain,problem,dead_ends,number_of_registered_states,total_time,solution_found,plan_cost,u_recognized)                 
+        u_recognized = ''
+        extract_info = ExtractInfo(domain,problem,dead_ends,number_of_registered_states,total_time,solution_found,plan_cost,u_recognized) 
         logging.debug(extract_info.domain)
         row = []
         if command_type=='c':
@@ -145,14 +141,13 @@ def extract(lines,command_type):
             row = extract_info.getRowE()
         return row
     except Exception,err:
-        f.close()
         logging.error("Error at extract %s"%log_file)
         logging.error(err)
         print(err)
 def overtime(lines):
     domain = eval(lines[1].split(":")[1])[1].split("/")[-2]
     problem = eval(lines[1].split(":")[1])[1].split("/")[-1].replace(".pddl","")
-    solution_found = -1
+    solution_found = 0
     extract_info = ExtractInfo(domain,problem,'','','',solution_found,'','')                 
     logging.debug(extract_info.domain)
     if command_type=='c':
