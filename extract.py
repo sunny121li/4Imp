@@ -51,12 +51,14 @@ def checkCommandType(lines):
         try:
             if lines[index].index('INFO     search arguments')>-1:
                 search_arguments_line_index = index
+                index = 0
                 break
         except:
             pass
         index = index+1
-        
-    argments = eval(lines[search_arguments_line_index].replace("\n",'').split(":")[1])
+    print(len(lines))
+    print(index)
+    argments = eval(lines[70].replace("\n",'').split(":")[1])
     index_lazy_greedy = -1
     index_ucrn2_1 = -1
     index_uccp = -1
