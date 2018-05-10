@@ -278,7 +278,7 @@ f = open(filename, 'w')
 writer = csv.writer(f)
 extract_data = []
 
-folders = ['52','53','54','55']
+folders = ['52','53','54','55','56']
 log_folders = ['log_cp','log_nr','log_hff']
 log_file_list = []
 for folder in folders:
